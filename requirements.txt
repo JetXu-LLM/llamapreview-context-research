@@ -1,0 +1,11 @@
+# Core dependencies for LlamaPReview Context Research
+requests>=2.31.0
+PyJWT>=2.8.0
+llama-github>=0.3.3
+
+# Environment variable management (Best practice for API keys)
+python-dotenv>=1.0.0
+
+# Type checking support (Optional but recommended for 'core' modules)
+types-requests
+types-PyYAML
