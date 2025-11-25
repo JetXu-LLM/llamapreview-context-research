@@ -90,13 +90,16 @@ python main.py --repo owner/repo --pr 123 --strategy agent
 
 ---
 
-## 🔮 The "Graph" Horizon
+## 🔮 The Horizon: Project CodeMesh
 
-While both Search and Agentic strategies offer solutions, our research indicates that **Context Instability** persists due to the probabilistic nature of these methods.
+While both Search and Agentic strategies (contained in this repo) offer partial solutions, our research indicates that **Context Instability** persists due to the probabilistic nature of these methods.
 
-At **LlamaPReview**, we are currently moving towards **Strategy C: Repository Graph RAG**. By statically analyzing the repository to build a deterministic dependency graph (Nodes: Functions, Edges: Calls), we aim to achieve O(1) lookup efficiency with 100% consistency.
+At **LlamaPReview**, we have moved beyond these probabilistic approaches. We are currently building **CodeMesh** — a deterministic infrastructure layer for code intelligence.
 
-*More details on the Graph approach will be discussed in future publications.*
+*   **The Shift:** From "Guessing with Vectors" to "Navigating with Graphs".
+*   **The Architecture:** CodeMesh statically analyzes the repository to build a high-fidelity dependency network (Nodes: Definitions, Edges: References), enabling O(1) lookup efficiency with 100% consistency.
+
+> *CodeMesh is currently in private preview. The architectural deep-dive will be released in our upcoming technical series.*
 
 ---
 
