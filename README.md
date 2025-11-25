@@ -6,110 +6,58 @@
 
 ## 📖 Introduction
 
-**Why are AI code reviewers inconsistent?**
+**The "Context Instability" Problem**
 
-The primary bottleneck in AI-assisted software engineering isn't the intelligence of the LLM—it's the **instability of the context**.
-- When a Pull Request is isolated (intra-file changes), AI tools achieve >80% accuracy.
-- When a Pull Request involves cross-file dependencies (inter-file impacts), accuracy drops significantly due to missing context.
+The primary bottleneck in AI-assisted software engineering isn't the intelligence of the LLM—it's the **instability of the context retrieval**.
 
-This repository contains the research artifacts and experimental implementations behind **LlamaPReview's** journey to solve this problem. It documents our exploration of two distinct architectural approaches to Context RAG (Retrieval-Augmented Generation):
+When we ask an AI to review a PR, we are essentially asking it to find a needle in a haystack. Current industry standards rely on **Probabilistic Retrieval** (Vector Search / Keyword Search). This works for chat, but fails for code engineering where strict dependency logic is required.
 
-1.  **Search-based RAG:** The industry standard "needle-in-a-haystack" approach.
-2.  **Agentic RAG:** A "brute-force exploration" approach using ReAct agents.
-
-> **Note:** This repository serves as a companion to our upcoming technical deep-dive series. The code here is structured as research prototypes to demonstrate architectural patterns.
+This repository documents our research journey through **Strategy A** and **Strategy B**, and explains why we ultimately moved towards the **Code Mesh Architecture**.
 
 ---
 
-## 🏗️ Architectures Explored
+## 🏗️ The Probabilistic Approaches (This Repo)
+
+This codebase contains the implementations of two common RAG patterns we evaluated:
 
 ### Strategy A: Search-based RAG (The Baseline)
 *Located in `strategies/search_rag/`*
-
-This approach mimics how most current AI developer tools work. It relies on generating keywords from the PR diff and querying the GitHub Search API.
-
-*   **Mechanism:** LLM Query Generation -> GitHub Code Search API -> Regex Filtering -> Context Window.
-*   **Key Components:**
-    *   `QueryGenerator`: Uses heuristics to generate high-recall search terms.
-    *   `CodeContextExtractor`: Language-agnostic regex patterns to extract function/class definitions.
-*   **The Trade-off:** Fast and cheap, but suffers from **Low Recall**. It often misses semantic relationships (e.g., aliased imports) and struggles with "Zero-Result" queries.
+*   **Mechanism:** Regex + GitHub Search API.
+*   **Verdict:** Fast but low recall. It misses implicit dependencies (e.g., aliased imports or dynamic dispatch).
 
 ### Strategy B: Agentic RAG (The Explorer)
 *Located in `strategies/agentic_rag/`*
+*   **Mechanism:** ReAct Agents exploring the file tree.
+*   **Verdict:** High precision but prohibitive cost/latency. O(N) complexity makes it unscalable for large monoliths.
 
-This approach utilizes a **ReAct (Reason-Act)** loop powered by reasoning models (e.g., DeepSeek-Reasoner). The agent mimics a human reviewer, navigating the file tree step-by-step.
-
-*   **Mechanism:** Think (Plan) -> Act (Read File/List Dir) -> Observe (Evaluate Relevance) -> Reflect -> Decide.
-*   **Key Components:**
-    *   `PRContextCollector`: The core engine managing the ReAct loop.
-    *   `QualityEvaluator`: An automated scoring system to judge context completeness and sufficiency.
-*   **The Trade-off:** High precision and reasoning depth, but suffers from **High Latency and Cost**. A single review involves multiple LLM round-trips, making it O(N) in complexity.
+> **Note:** These implementations are provided as research artifacts to demonstrate the limitations of non-deterministic retrieval.
 
 ---
 
-## 📂 Project Structure
+## 🔮 The Future: The Code Mesh Paradigm
 
-```text
-llamapreview-context-research/
-├── core/                    # Shared utilities (GitHub client, PR processing)
-├── strategies/
-│   ├── search_rag/          # Implementation of Search-based retrieval
-│   └── agentic_rag/         # Implementation of Agent-based retrieval
-├── experiments/             # Comparison scripts and notebooks
-└── main.py                  # CLI entry point
-```
+Our research concluded that **you cannot solve a structural problem with a probabilistic tool.**
 
----
+To achieve 100% context consistency, we are shifting our focus to **Strategy C: The Code Mesh**.
 
-## 🚀 Getting Started
+### What is Code Mesh?
+Code Mesh is not just a tool; it is a **deterministic infrastructure layer** for AI coding agents.
 
-### Prerequisites
-*   Python 3.9+
-*   GitHub Access Token (Fine-grained token with repo read permissions)
-*   DeepSeek API Key (or compatible OpenAI-format endpoint)
+*   **From Text to Graph:** Instead of treating code as flat text files, Code Mesh parses the repository into a semantic graph (Nodes: Definitions, Edges: References/Calls).
+*   **Deterministic Navigation:** It replaces "Searching" with "Traversing". When an LLM needs to know "Who calls this function?", it doesn't guess—it simply follows the edge.
+*   **O(1) Efficiency:** Context retrieval becomes a direct lookup operation, independent of the repository size.
 
-### Installation
-
-```bash
-git clone https://github.com/YourUsername/llamapreview-context-research.git
-cd llamapreview-context-research
-pip install -r requirements.txt
-```
-
-### Usage (CLI)
-
-You can run the context retrieval pipeline using either strategy:
-
-```bash
-# Run Search-based Strategy
-python main.py --repo owner/repo --pr 123 --strategy search
-
-# Run Agentic Strategy
-python main.py --repo owner/repo --pr 123 --strategy agent
-```
-
----
-
-## 🔮 The Horizon: Project CodeMesh
-
-While both Search and Agentic strategies (contained in this repo) offer partial solutions, our research indicates that **Context Instability** persists due to the probabilistic nature of these methods.
-
-At **LlamaPReview**, we have moved beyond these probabilistic approaches. We are currently building **CodeMesh** — a deterministic infrastructure layer for code intelligence.
-
-*   **The Shift:** From "Guessing with Vectors" to "Navigating with Graphs".
-*   **The Architecture:** CodeMesh statically analyzes the repository to build a high-fidelity dependency network (Nodes: Definitions, Edges: References), enabling O(1) lookup efficiency with 100% consistency.
-
-> *CodeMesh is currently in private preview. The architectural deep-dive will be released in our upcoming technical series.*
+*The architectural specification and implementation of Code Mesh will be detailed in our upcoming technical series.*
 
 ---
 
 ## 👤 Author
 
 **Jet Xu**
-*Creator of LlamaPReview*
+*Architect of LlamaPReview & Code Mesh*
 
-This research is part of the broader mission to build the next generation of context-aware AI developer tools.
+This research is part of the broader mission to build the **Deterministic Context Layer** for AI.
 
 ---
 
-*Disclaimer: This code is provided for research and educational purposes. It represents experimental snapshots and may differ from the production codebase of LlamaPReview.*
+*Disclaimer: This code is provided for research and educational purposes.*
