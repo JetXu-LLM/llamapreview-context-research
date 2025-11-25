@@ -2,6 +2,7 @@ import re
 import logging
 from typing import List, Dict, Any, Optional
 from .state import CollectionState
+from core.pr_processor import extract_changed_files_info
 
 logger = logging.getLogger("LlamaPReview")
 
@@ -69,7 +70,7 @@ The previous focus area has been explored. Based on the analysis above, consider
                 dir_counts[dir_path] += 1
         
         # Identify directories containing changed files for highlighting
-        changed_files = _extract_changed_files_info(state.pr_content)
+        changed_files = extract_changed_files_info(state.pr_content)
         changed_dirs = set()
         for cf in changed_files:
             if '/' in cf['path']:
@@ -532,39 +533,3 @@ def _format_accessible_files(accessible_files: List[str]) -> str:
         lines.append(f"\n... and {len(by_dir) - 30} more directories")
     
     return '\n'.join(lines)
-
-def _extract_changed_files_info(pr_content: Dict[str, Any]) -> List[Dict]:
-    """
-    Helper to extract changed files info from pr_content.
-    Used to highlight relevant directories in the Focus prompt.
-    """
-    changed_files = []
-    
-    if 'file_changes' in pr_content:
-        for file_change in pr_content['file_changes']:
-            changed_files.append({
-                'path': file_change.get('file_path', ''),
-                'change_type': file_change.get('change_type', 'modified'),
-                'additions': file_change.get('additions', 0),
-                'deletions': file_change.get('deletions', 0),
-                'diff': file_change.get('diff', '')
-            })
-    
-    if not changed_files and 'commits' in pr_content:
-        seen_files = set()
-        for commit in pr_content['commits']:
-            if 'files' in commit:
-                for file_path in commit['files']:
-                    if file_path not in seen_files:
-                        seen_files.add(file_path)
-                        changed_files.append({
-                            'path': file_path,
-                            'change_type': 'modified',
-                            'additions': 0,
-                            'deletions': 0,
-                            'diff': ''
-                        })
-    
-    logger.debug(f"Extracted {len(changed_files)} changed files")
-    
-    return changed_files

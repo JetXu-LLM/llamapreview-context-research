@@ -399,3 +399,37 @@ def get_pr_details(repo, pr_number) -> tuple[str, str]:
     pr_content = trim_pr_data(pr_content)
     pr_details = json_to_markdown(pr_content)
     return pr_content, pr_details
+
+def extract_changed_files_info(pr_content: Dict[str, Any]) -> List[Dict]:
+    """
+    Extract changed files info from pr_content.
+    Includes diffs and stats which are essential for the Evaluator.
+    """
+    changed_files = []
+    
+    if 'file_changes' in pr_content:
+        for file_change in pr_content['file_changes']:
+            changed_files.append({
+                'path': file_change.get('file_path', ''),
+                'change_type': file_change.get('change_type', 'modified'),
+                'additions': file_change.get('additions', 0),
+                'deletions': file_change.get('deletions', 0),
+                'diff': file_change.get('diff', '')
+            })
+    
+    if not changed_files and 'commits' in pr_content:
+        seen_files = set()
+        for commit in pr_content['commits']:
+            if 'files' in commit:
+                for file_path in commit['files']:
+                    path_str = file_path if isinstance(file_path, str) else file_path.get('filename', '')
+                    if path_str and path_str not in seen_files:
+                        seen_files.add(path_str)
+                        changed_files.append({
+                            'path': path_str,
+                            'change_type': 'modified',
+                            'additions': 0,
+                            'deletions': 0,
+                            'diff': ''
+                        })
+    return changed_files

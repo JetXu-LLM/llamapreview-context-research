@@ -8,6 +8,7 @@ from typing import Dict, Any, List, Optional, Tuple, Set
 from core.llm_client import DeepSeekClient
 from core.github_client import GithubClient
 from core.code_analysis import CodeContextExtractor
+from core.pr_processor import extract_changed_files_info
 from strategies.base_strategy import ContextStrategy
 from strategies.agentic_rag.state import (
     CollectionState, 
@@ -68,7 +69,7 @@ class AgenticRAGStrategy(ContextStrategy):
         )
         
         # Extract changed files info (Diffs, Additions, Deletions)
-        changed_files_info = self._extract_changed_files_info(pr_content)
+        changed_files_info = extract_changed_files_info(pr_content)
         
         logger.info("="*70)
         logger.info("🚀 ReAct PR Context Collection Started")
@@ -270,6 +271,10 @@ class AgenticRAGStrategy(ContextStrategy):
                     temperature=0.3,
                     response_format={"type": "json_object"}
                 )
+
+                if response and 'usage' in response:
+                    state.total_tokens += response['usage'].get('total_tokens', 0)
+                logger.debug(f"   Token usage updated: {state.total_tokens}/{state.token_budget}")
                 
                 # Parse Response
                 message = response['choices'][0]['message']
@@ -348,6 +353,10 @@ class AgenticRAGStrategy(ContextStrategy):
                 temperature=0.3,
                 response_format={"type": "json_object"}
             )
+
+            if response and 'usage' in response:
+                state.total_tokens += response['usage'].get('total_tokens', 0)
+            logger.debug(f"   Token usage updated: {state.total_tokens}/{state.token_budget}")
             
             message = response['choices'][0]['message']
             content = message.get('content', '')
@@ -469,6 +478,10 @@ class AgenticRAGStrategy(ContextStrategy):
                 temperature=0.3,
                 response_format={"type": "json_object"}
             )
+
+            if response and 'usage' in response:
+                state.total_tokens += response['usage'].get('total_tokens', 0)
+            logger.debug(f"   Token usage updated: {state.total_tokens}/{state.token_budget}")
             
             content = response['choices'][0]['message']['content']
             reflection = self._parse_json_response(content)
@@ -760,7 +773,11 @@ class AgenticRAGStrategy(ContextStrategy):
 
         try:
             # Use GitHub Client
-            content = self.github.get_file_content(state.repo_full_name, file_path)
+            content = self.github.get_file_content(
+                repo_full_name=state.repo_full_name, 
+                file_path=file_path, 
+                sha=state.sha
+            )
             
             if content is None:
                 raise Exception("File content is None")
@@ -1187,40 +1204,6 @@ class AgenticRAGStrategy(ContextStrategy):
                 'files_count': len(state.collected_files)
             }
         }
-
-    def _extract_changed_files_info(self, pr_content: Dict[str, Any]) -> List[Dict]:
-        """
-        Extract changed files info from pr_content.
-        Includes diffs and stats which are essential for the Evaluator.
-        """
-        changed_files = []
-        
-        if 'file_changes' in pr_content:
-            for file_change in pr_content['file_changes']:
-                changed_files.append({
-                    'path': file_change.get('file_path', ''),
-                    'change_type': file_change.get('change_type', 'modified'),
-                    'additions': file_change.get('additions', 0),
-                    'deletions': file_change.get('deletions', 0),
-                    'diff': file_change.get('diff', '')
-                })
-        
-        if not changed_files and 'commits' in pr_content:
-            seen_files = set()
-            for commit in pr_content['commits']:
-                if 'files' in commit:
-                    for file_path in commit['files']:
-                        path_str = file_path if isinstance(file_path, str) else file_path.get('filename', '')
-                        if path_str and path_str not in seen_files:
-                            seen_files.add(path_str)
-                            changed_files.append({
-                                'path': path_str,
-                                'change_type': 'modified',
-                                'additions': 0,
-                                'deletions': 0,
-                                'diff': ''
-                            })
-        return changed_files
 
     def _get_accessible_files_for_context(self, state: CollectionState, target_path: Optional[str]) -> List[str]:
         """Get list of accessible files for a specific path"""
