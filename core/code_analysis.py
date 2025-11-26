@@ -100,6 +100,21 @@ class CodeContextExtractor:
                 re.compile(r'^\s*interface\s+\w+'),
                 re.compile(r'^\s*object\s+\w+'),
             ]
+
+    def _is_definition_start_line(self, line: str) -> bool:
+        """
+        Checks if a line is a likely start of a definition using the robust patterns
+        from the DiffGenerator class. This is the primary mechanism for identifying
+        function/class/method starts across different languages.
+        """
+        stripped = line.strip()
+        if not stripped or stripped.startswith(("#", "//")):
+            return False
+        
+        for pattern in self._FUNC_CONTEXT_PATTERNS:
+            if pattern.search(line):
+                return True
+        return False
     
     def extract_enclosing_block(
         self,
@@ -130,25 +145,10 @@ class CodeContextExtractor:
         if line_index < 0 or line_index >= n:
             return None, -1, -1
 
-        def _is_definition_start_line(line: str) -> bool:
-            """
-            Checks if a line is a likely start of a definition using the robust patterns
-            from the DiffGenerator class. This is the primary mechanism for identifying
-            function/class/method starts across different languages.
-            """
-            stripped = line.strip()
-            if not stripped or stripped.startswith(("#", "//")):
-                return False
-            
-            for pattern in self._FUNC_CONTEXT_PATTERNS:
-                if pattern.search(line):
-                    return True
-            return False
-
         # --- Step 1: Find the start of the enclosing block ---
         def_idx = -1
         for i in range(line_index, -1, -1):
-            if _is_definition_start_line(lines[i]):
+            if self._is_definition_start_line(lines[i]):
                 def_idx = i
                 break
 

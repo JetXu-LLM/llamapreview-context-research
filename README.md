@@ -16,6 +16,30 @@ This repository documents our research journey through **Strategy A** and **Stra
 
 ---
 
+## 🧪 Running the Experiments
+
+This repository includes a benchmark suite to compare the three context retrieval strategies.
+
+1.  **Setup Environment:**
+    ```bash
+    pip install -r requirements.txt
+    cp .env.example .env  # Add your GITHUB_TOKEN and DEEPSEEK_API_KEY
+    ```
+
+2.  **Run Single Strategy (CLI):**
+    ```bash
+    python main.py https://github.com/psf/requests/pull/6666 --strategy agent
+    ```
+
+3.  **Run Comparison Benchmark:**
+    Generate a side-by-side report of Search vs. Agent vs. Mesh:
+    ```bash
+    python experiments/run_comparison.py https://github.com/psf/requests/pull/6666
+    ```
+    *Output: `comparison_report_6666.md`*
+
+---
+
 ## 🏗️ The Probabilistic Approaches (This Repo)
 
 This codebase contains the implementations of two common RAG patterns we evaluated:
