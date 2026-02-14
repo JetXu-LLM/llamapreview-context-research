@@ -16,13 +16,13 @@ class ContextStrategy(ABC):
     at runtime while sharing core infrastructure like GitHub and LLM clients.
     """
 
-    def __init__(self, github_client: GithubClient, llm_client: DeepSeekClient):
+    def __init__(self, llm_client: DeepSeekClient, github_client: GithubClient):
         """
         Initialize the strategy with shared clients.
         
         Args:
-            github_client: Wrapper for GitHub API interactions.
             llm_client: Wrapper for DeepSeek API interactions.
+            github_client: Wrapper for GitHub API interactions.
         """
         self.github_client = github_client
         self.llm_client = llm_client

@@ -51,12 +51,17 @@ Instead of "Similarity Search", Code Mesh performs **Graph Traversal** to build 
 
 This directory represents the **architectural definition** of the Code Mesh strategy.
 
-The core implementation includes:
-*   **Polyglot Parser:** Based on Tree-sitter for multi-language support.
-*   **Graph Builder:** NetworkX/Rust-based graph generation.
-*   **Traversal Engine:** Algorithms for "Context Slicing".
+This public research repository ships:
+*   **A stable adapter contract** (`strategy.py`) for invoking Code Mesh.
+*   **Architecture specification** for deterministic traversal behavior.
 
-> **Note:** The full implementation of the Code Mesh engine is the proprietary core of **[LlamaPReview](https://jetxu-llm.github.io/LlamaPReview-site/)**. It is currently deployed in production, powering thousands of accurate code reviews daily.
+This repository intentionally does **not** include the proprietary core engine internals.
+
+> **Note:** The full implementation of the Code Mesh engine is the proprietary core of **[LlamaPReview](https://jetxu-llm.github.io/LlamaPReview-site/)**.
+> Use the adapter by setting:
+> - `CODE_MESH_ENDPOINT`
+> - optional `CODE_MESH_API_KEY`
+> - optional `CODE_MESH_TIMEOUT_SEC`
 
 ---
 

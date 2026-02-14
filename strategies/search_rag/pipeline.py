@@ -33,8 +33,13 @@ class SearchRAGStrategy(ContextStrategy):
     """
 
     def __init__(self, llm_client: DeepSeekClient, github_client: GithubClient):
+        super().__init__(llm_client=llm_client, github_client=github_client)
         self.llm = llm_client
         self.github = github_client
+
+    @property
+    def name(self) -> str:
+        return "Search RAG"
 
     def execute(self, pr_details: str, pr_content: Dict[str, Any], repo_full_name: str) -> str:
         """

@@ -52,9 +52,14 @@ class AgenticRAGStrategy(ContextStrategy):
         """
         Initialize the Agentic Strategy with core clients.
         """
+        super().__init__(llm_client=llm_client, github_client=github_client)
         self.llm = llm_client
         self.github = github_client
         self.code_extractor = CodeContextExtractor()
+
+    @property
+    def name(self) -> str:
+        return "Agentic RAG"
 
     def execute(self, pr_details: str, pr_content: Dict[str, Any], repo_full_name: str) -> str:
         """
