@@ -1,4 +1,6 @@
-# Code Mesh: The Deterministic Context Layer
+# Code Mesh Research Note: The Deterministic Context Layer
+
+> **Note from the author:** This directory is a research artifact from the LlamaPReview context work. While the traditional AI code review SaaS model as it stands has seemingly outlived its time in the era of "Vibe Coding," the deterministic-context thesis developed here remains a powerful foundation. This is not an active LlamaPReview product roadmap, but if you've resonated with this approach, I'd be incredibly honored if you took a moment to look at [DocMason](https://github.com/JetXu-LLM/DocMason), where our passion for building developer tools continues.
 
 > **"Stop searching. Start traversing."**
 
@@ -9,7 +11,7 @@ In our research (see `search_rag` and `agentic_rag`), we identified a fundamenta
 *   **Search RAG** is like asking a librarian: *"Find books that feel similar to this one."* (Good for chat, bad for compilation).
 *   **Code Mesh** is like using a GPS: *"Trace the exact path from Point A to Point B."*
 
-**Code Mesh** is our proprietary infrastructure that treats a repository not as a bag of text files, but as a **Semantic Network**.
+**Code Mesh** is the architectural idea we explored for treating a repository not as a bag of text files, but as a **Semantic Network**.
 
 ## 2. Architecture Specification
 
@@ -47,21 +49,17 @@ Instead of "Similarity Search", Code Mesh performs **Graph Traversal** to build 
 | **Latency** | Fast | Very Slow (Multi-step) | **Instant (O(1) Lookup)** |
 | **Cost** | Low | High | **Low** |
 
-## 4. Implementation Status
+## 4. Research Status
 
-This directory represents the **architectural definition** of the Code Mesh strategy.
+This directory represents the architectural definition of the Code Mesh strategy.
 
-This public research repository ships:
-*   **A stable adapter contract** (`strategy.py`) for invoking Code Mesh.
-*   **Architecture specification** for deterministic traversal behavior.
+This public research repository currently preserves:
+*   Architecture notes for deterministic traversal behavior.
+*   The surrounding research context for why deterministic retrieval matters.
 
-This repository intentionally does **not** include the proprietary core engine internals.
+This repository does **not** include a production Code Mesh engine.
 
-> **Note:** The full implementation of the Code Mesh engine is the proprietary core of **[LlamaPReview](https://jetxu-llm.github.io/LlamaPReview-site/)**.
-> Use the adapter by setting:
-> - `CODE_MESH_ENDPOINT`
-> - optional `CODE_MESH_API_KEY`
-> - optional `CODE_MESH_TIMEOUT_SEC`
+> **Note:** The broader context-intelligence direction from this research now has a different public focus. DocMason is the current active open-source focus from the same author, while this directory remains here for transparency and reference.
 
 ---
 

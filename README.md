@@ -4,6 +4,8 @@
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue)
 ![Status](https://img.shields.io/badge/status-Research%20Prototype-orange)
 
+> **Maintenance Note:** Reaching 527 subscriptions and over 4,000 repositories has been an incredibly rewarding part of our journey. However, as the software landscape transforms with the wave of AI-native "Vibe Coding," the traditional AI code review SaaS model is changing. Therefore, free reviews for private repositories in LlamaPReview will pause on **May 1, 2026 00:00:00 UTC**. **LlamaPReview Advanced** remains completely free and fully operational for public open-source repositories as our way of giving back. If you have enjoyed our work, we would be incredibly honored if you took a moment to look at [DocMason](https://github.com/JetXu-LLM/DocMason), our new open-source focus. Thank you for everything.
+
 ## 📖 Introduction
 
 **The "Context Instability" Problem**
@@ -71,7 +73,7 @@ Code Mesh is not just a tool; it is a **deterministic infrastructure layer** for
 *   **Deterministic Navigation:** It replaces "Searching" with "Traversing". When an LLM needs to know "Who calls this function?", it doesn't guess—it simply follows the edge.
 *   **O(1) Efficiency:** Context retrieval becomes a direct lookup operation, independent of the repository size.
 
-*The architectural specification and implementation of Code Mesh will be detailed in our upcoming technical series.*
+*This repository preserves the thesis and research context behind Code Mesh. It should be read as a research artifact, not as an active product roadmap.*
 
 ---
 
